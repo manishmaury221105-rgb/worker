@@ -1,0 +1,34 @@
+2026-10-08 12:35:46.837 IST [6750] LOG:  starting PostgreSQL 15.15 (Homebrew) on aarch64-apple-darwin25.2.0, compiled by Apple clang version 17.0.0 (clang-1700.6.3.2), 64-bit
+2026-10-08 12:35:46.839 IST [6750] LOG:  listening on IPv6 address "::1", port 5433
+2026-10-08 12:35:46.839 IST [6750] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-10-08 12:35:46.839 IST [6750] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-10-08 12:35:46.843 IST [6753] LOG:  database system was shut down at 2026-10-08 12:35:45 IST
+2026-10-08 12:35:46.845 IST [6750] LOG:  database system is ready to accept connections
+2026-10-08 12:40:46.831 IST [6751] LOG:  checkpoint starting: time
+2026-10-08 12:42:31.440 IST [6751] LOG:  checkpoint complete: wrote 1037 buffers (6.3%); 0 WAL file(s) added, 0 removed, 0 recycled; write=104.590 s, sync=0.014 s, total=104.610 s; sync files=347, longest=0.001 s, average=0.001 s; distance=4900 kB, estimate=4900 kB
+2026-10-08 13:00:46.391 IST [6751] LOG:  checkpoint starting: time
+2026-10-08 13:00:48.128 IST [6751] LOG:  checkpoint complete: wrote 18 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=1.729 s, sync=0.002 s, total=1.739 s; sync files=18, longest=0.001 s, average=0.001 s; distance=20 kB, estimate=4412 kB
+2026-10-08 13:10:46.107 IST [6751] LOG:  checkpoint starting: time
+2026-10-08 13:10:47.136 IST [6751] LOG:  checkpoint complete: wrote 11 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=1.022 s, sync=0.003 s, total=1.030 s; sync files=11, longest=0.001 s, average=0.001 s; distance=14 kB, estimate=3972 kB
+2026-10-08 13:15:46.112 IST [6751] LOG:  checkpoint starting: time
+2026-10-08 13:15:46.530 IST [6751] LOG:  checkpoint complete: wrote 5 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.410 s, sync=0.001 s, total=0.418 s; sync files=5, longest=0.001 s, average=0.001 s; distance=12 kB, estimate=3576 kB
+2026-10-08 13:30:46.479 IST [6751] LOG:  checkpoint starting: time
+2026-10-08 13:30:47.928 IST [6751] LOG:  checkpoint complete: wrote 15 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=1.445 s, sync=0.002 s, total=1.449 s; sync files=9, longest=0.001 s, average=0.001 s; distance=30 kB, estimate=3222 kB
+2026-10-08 13:35:46.947 IST [6751] LOG:  checkpoint starting: time
+2026-10-08 13:35:47.055 IST [6751] LOG:  checkpoint complete: wrote 1 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.104 s, sync=0.001 s, total=0.108 s; sync files=1, longest=0.001 s, average=0.001 s; distance=7 kB, estimate=2900 kB
+2026-10-08 14:05:46.967 IST [6751] LOG:  checkpoint starting: time
+2026-10-08 14:05:47.496 IST [6751] LOG:  checkpoint complete: wrote 6 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.519 s, sync=0.002 s, total=0.528 s; sync files=6, longest=0.001 s, average=0.001 s; distance=5 kB, estimate=2611 kB
+2026-10-08 14:15:46.476 IST [6751] LOG:  checkpoint starting: time
+2026-10-08 14:15:46.595 IST [6751] LOG:  checkpoint complete: wrote 2 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.112 s, sync=0.002 s, total=0.122 s; sync files=2, longest=0.001 s, average=0.001 s; distance=2 kB, estimate=2350 kB
+2026-10-08 14:55:46.558 IST [6751] LOG:  checkpoint starting: time
+2026-10-08 14:55:50.193 IST [6751] LOG:  checkpoint complete: wrote 36 buffers (0.2%); 0 WAL file(s) added, 0 removed, 0 recycled; write=3.626 s, sync=0.004 s, total=3.635 s; sync files=33, longest=0.001 s, average=0.001 s; distance=159 kB, estimate=2131 kB
+2026-10-08 15:05:46.177 IST [6751] LOG:  checkpoint starting: time
+2026-10-08 15:05:47.408 IST [6751] LOG:  checkpoint complete: wrote 13 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=1.226 s, sync=0.001 s, total=1.233 s; sync files=11, longest=0.001 s, average=0.001 s; distance=17 kB, estimate=1919 kB
+2026-10-08 15:25:46.412 IST [6751] LOG:  checkpoint starting: time
+2026-10-08 15:25:46.626 IST [6751] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.209 s, sync=0.001 s, total=0.216 s; sync files=3, longest=0.001 s, average=0.001 s; distance=8 kB, estimate=1728 kB
+2026-10-08 15:55:46.590 IST [6751] LOG:  checkpoint starting: time
+2026-10-08 15:55:48.125 IST [6751] LOG:  checkpoint complete: wrote 16 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=1.527 s, sync=0.001 s, total=1.537 s; sync files=16, longest=0.001 s, average=0.001 s; distance=25 kB, estimate=1558 kB
+2026-10-08 16:00:46.113 IST [6751] LOG:  checkpoint starting: time
+2026-10-08 16:00:47.340 IST [6751] LOG:  checkpoint complete: wrote 13 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=1.220 s, sync=0.002 s, total=1.227 s; sync files=13, longest=0.001 s, average=0.001 s; distance=41 kB, estimate=1406 kB
+2026-10-08 16:05:46.333 IST [6751] LOG:  checkpoint starting: time
+2026-10-08 16:05:47.355 IST [6751] LOG:  checkpoint complete: wrote 11 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=1.020 s, sync=0.001 s, total=1.023 s; sync files=11, longest=0.001 s, average=0.001 s; distance=14 kB, estimate=1267 kB

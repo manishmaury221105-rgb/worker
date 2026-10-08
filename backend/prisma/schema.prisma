@@ -1,0 +1,274 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  WORKER
+}
+
+enum WorkerStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  HALF_DAY
+  ON_LEAVE
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum LeaveType {
+  SICK
+  CASUAL
+  EMERGENCY
+  PAID
+  UNPAID
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum SalaryStatus {
+  DRAFT
+  PENDING
+  PAID
+}
+
+enum AdvanceStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  DEDUCTED
+}
+
+enum ExpenseCategory {
+  TRAVEL
+  FOOD
+  MATERIALS
+  TOOLS
+  FUEL
+  OTHER
+}
+
+enum ExpenseStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REIMBURSED
+}
+
+enum NotificationType {
+  ATTENDANCE
+  TASK
+  LEAVE
+  SALARY
+  EXPENSE
+  SYSTEM
+}
+
+model User {
+  id               String       @id @default(cuid())
+  name             String
+  email            String       @unique
+  phone            String       @unique
+  password         String
+  role             Role         @default(WORKER)
+  department       String       @default("General")
+  designation      String       @default("Worker")
+  monthlySalary    Float        @default(20000)
+  hourlyRate       Float        @default(100)
+  status           WorkerStatus @default(ACTIVE)
+  avatarUrl        String?
+  address          String?
+  emergencyContact String?
+  bankAccount      String?
+  upiId            String?
+  aadhaarNumber    String?
+  aadhaarFrontUrl  String?
+  aadhaarBackUrl   String?
+  dateOfJoining    DateTime     @default(now())
+  fcmToken         String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  // Relations
+  attendances      Attendance[]
+  assignedTasks    Task[]          @relation("AssignedTo")
+  createdTasks     Task[]          @relation("CreatedBy")
+  leaves           LeaveRequest[]
+  salaryRecords    SalaryRecord[]
+  salaryAdvances   SalaryAdvance[]
+  expenses         Expense[]
+  notifications    Notification[]
+
+  @@map("users")
+}
+
+model Attendance {
+  id              String           @id @default(cuid())
+  userId          String
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date            DateTime         @db.Date
+  checkInTime     DateTime?
+  checkInLat      Float?
+  checkInLng      Float?
+  checkInAddress  String?
+  checkOutTime    DateTime?
+  checkOutLat     Float?
+  checkOutLng     Float?
+  checkOutAddress String?
+  workingHours    Float            @default(0)
+  status          AttendanceStatus @default(PRESENT)
+  isLocked        Boolean          @default(false)
+  notes           String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@unique([userId, date])
+  @@map("attendances")
+}
+
+model AttendanceLock {
+  id        String   @id @default(cuid())
+  date      DateTime @unique @db.Date
+  isLocked  Boolean  @default(true)
+  lockedAt  DateTime @default(now())
+  lockedBy  String?
+
+  @@map("attendance_locks")
+}
+
+model Task {
+  id              String       @id @default(cuid())
+  title           String
+  description     String
+  assignedToId    String
+  assignedTo      User         @relation("AssignedTo", fields: [assignedToId], references: [id], onDelete: Cascade)
+  createdById     String
+  createdBy       User         @relation("CreatedBy", fields: [createdById], references: [id])
+  status          TaskStatus   @default(PENDING)
+  priority        TaskPriority @default(MEDIUM)
+  dueDate         DateTime?
+  location        String?
+  completionNotes String?
+  completedAt     DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@map("tasks")
+}
+
+model LeaveRequest {
+  id           String      @id @default(cuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leaveType    LeaveType   @default(CASUAL)
+  startDate    DateTime    @db.Date
+  endDate      DateTime    @db.Date
+  totalDays    Int         @default(1)
+  reason       String
+  status       LeaveStatus @default(PENDING)
+  adminComment String?
+  approvedById String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@map("leave_requests")
+}
+
+model SalaryRecord {
+  id                String       @id @default(cuid())
+  userId            String
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  month             Int
+  year              Int
+  baseSalary        Float
+  allowance         Float        @default(0)
+  deductions        Float        @default(0)
+  netSalary         Float
+  presentDays       Int          @default(0)
+  absentDays        Int          @default(0)
+  totalWorkingHours Float        @default(0)
+  status            SalaryStatus @default(PENDING)
+  paymentDate       DateTime?
+  paymentMethod     String?
+  notes             String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@unique([userId, month, year])
+  @@map("salary_records")
+}
+
+model SalaryAdvance {
+  id           String        @id @default(cuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount       Float
+  reason       String
+  status       AdvanceStatus @default(PENDING)
+  approvedById String?
+  adminComment String?
+  requestDate  DateTime      @default(now())
+  payoutDate   DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@map("salary_advances")
+}
+
+model Expense {
+  id           String          @id @default(cuid())
+  userId       String
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category     ExpenseCategory @default(OTHER)
+  amount       Float
+  description  String
+  receiptUrl   String?
+  expenseDate  DateTime        @default(now())
+  status       ExpenseStatus   @default(PENDING)
+  adminComment String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@map("expenses")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      NotificationType @default(SYSTEM)
+  isRead    Boolean          @default(false)
+  data      String?
+  createdAt DateTime         @default(now())
+
+  @@map("notifications")
+}

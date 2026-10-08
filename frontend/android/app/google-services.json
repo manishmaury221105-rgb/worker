@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "441957107322",
+    "project_id": "worker-management-app-4bd79",
+    "storage_bucket": "worker-management-app-4bd79.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:441957107322:android:7c36bfe5683eb588c25dc3",
+        "android_client_info": {
+          "package_name": "com.workerapp.worker_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1Lg-PZZYPKdJIj0SyhZHmjprP-lc8lD4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

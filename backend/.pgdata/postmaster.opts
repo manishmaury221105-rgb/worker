@@ -1,0 +1,1 @@
+/opt/homebrew/Cellar/postgresql@15/15.15_1/bin/postgres "-D" "/Users/dinanathmaurya/Documents/GitHub/Portfolio/Portfolio/worker/backend/.pgdata"
