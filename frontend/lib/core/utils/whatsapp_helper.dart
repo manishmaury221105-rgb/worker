@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class WhatsAppHelper {
@@ -13,6 +14,9 @@ class WhatsAppHelper {
   }) async {
     // Sanitize phone number (remove all non-digit characters)
     String cleanPhone = phone.replaceAll(RegExp(r'[^0-9]'), '');
+    if (cleanPhone.startsWith('0')) {
+      cleanPhone = cleanPhone.substring(1);
+    }
     if (cleanPhone.length == 10) {
       cleanPhone = '91$cleanPhone';
     }
@@ -33,24 +37,47 @@ class WhatsAppHelper {
 ━━━━━━━━━━━━━━━━━━━━
 🏢 *श्री लक्ष्मीनारायण एल्युमिनियम वर्क्स*
 📍 *पता:* घमहापुर, चोरारी, जलालपुर रोड, मड़ियाहूँ, जौनपुर
-📞 *संपर्क:* 9695718820 / 9892826110
+📞 *संपर्क:* 9695718820 / 99670 80639 / 98928 26110
 ${remarks != null && remarks.trim().isNotEmpty ? '📝 *Remarks:* $remarks\n' : ''}✅ *Status:* Verified & Approved
 ━━━━━━━━━━━━━━━━━━━━
 _मजबूती भी, सुंदरता भी – बस हमारे साथ !_
 ''';
 
-    final uri = Uri.parse('https://wa.me/$cleanPhone?text=${Uri.encodeComponent(message)}');
+    final encodedMessage = Uri.encodeComponent(message);
 
-    try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-        return true;
+    // List of URIs to attempt in order
+    final urisToTry = [
+      Uri.parse('whatsapp://send?phone=$cleanPhone&text=$encodedMessage'),
+      Uri.parse('https://wa.me/$cleanPhone?text=$encodedMessage'),
+      Uri.parse('https://api.whatsapp.com/send?phone=$cleanPhone&text=$encodedMessage'),
+    ];
+
+    for (final uri in urisToTry) {
+      try {
+        if (await canLaunchUrl(uri)) {
+          final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+          if (launched) return true;
+        }
+      } catch (e) {
+        debugPrint('WhatsApp launch attempt failed: $e');
       }
-    } catch (e) {
-      // Fallback url launch
-      await launchUrl(uri, mode: LaunchMode.platformDefault);
-      return true;
     }
+
+    // Direct fallback without canLaunchUrl check
+    try {
+      final directUri = Uri.parse('https://wa.me/$cleanPhone?text=$encodedMessage');
+      await launchUrl(directUri, mode: LaunchMode.externalApplication);
+      return true;
+    } catch (e) {
+      try {
+        final directUri = Uri.parse('https://wa.me/$cleanPhone?text=$encodedMessage');
+        await launchUrl(directUri, mode: LaunchMode.platformDefault);
+        return true;
+      } catch (e2) {
+        debugPrint('Direct fallback failed: $e2');
+      }
+    }
+
     return false;
   }
 }

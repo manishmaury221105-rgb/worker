@@ -27,7 +27,7 @@ class ApiEndpoints {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return 'http://10.0.2.2:5050/api';
+        return 'https://map-furniture-ideal-fall.trycloudflare.com/api';
       default:
         return 'http://localhost:5050/api';
     }
@@ -58,6 +58,7 @@ class ApiEndpoints {
   static const String manualAttendance = '/attendance/manual';
   static const String attendanceLockStatus = '/attendance/lock-status';
   static const String attendanceToggleLock = '/attendance/toggle-lock';
+  static const String workerMonthlyAttendance = '/attendance/worker-monthly';
 
   // Tasks
   static const String tasks = '/tasks';

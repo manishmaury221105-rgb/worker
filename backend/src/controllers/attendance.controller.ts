@@ -641,3 +641,50 @@ export const toggleAttendanceLock = async (req: AuthRequest, res: Response): Pro
   }
 };
 
+export const getWorkerMonthlyAttendance = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { userId, month, year } = req.query;
+    if (!userId || !month || !year) {
+      res.status(400).json({ success: false, message: 'userId, month, and year are required' });
+      return;
+    }
+
+    const m = Number(month) - 1;
+    const y = Number(year);
+    const startOfMonth = new Date(Date.UTC(y, m, 1));
+    const endOfMonth = new Date(Date.UTC(y, m + 1, 0, 23, 59, 59));
+
+    const attendances = await prisma.attendance.findMany({
+      where: {
+        userId: String(userId),
+        date: { gte: startOfMonth, lte: endOfMonth },
+      },
+    });
+
+    const presentCount = attendances.filter((a) => a.status === 'PRESENT' || a.status === 'LATE').length;
+    const halfDayCount = attendances.filter((a) => a.status === 'HALF_DAY').length;
+    const effectivePresentDays = presentCount + (halfDayCount * 0.5);
+    const totalWorkingHours = attendances.reduce((acc, curr) => acc + (curr.workingHours || 0), 0);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        userId,
+        month: Number(month),
+        year: Number(year),
+        presentDays: presentCount,
+        halfDays: halfDayCount,
+        effectivePresentDays,
+        totalWorkingHours,
+        totalRecords: attendances.length,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to fetch worker monthly attendance',
+    });
+  }
+};
+
+

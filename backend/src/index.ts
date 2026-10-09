@@ -57,12 +57,46 @@ app.use('/api/reports', reportRoutes);
 // Catch 404
 app.use(notFoundHandler);
 
-// Global Error Handler
-app.use(errorHandler);
+import { prisma } from './prisma';
+import bcrypt from 'bcryptjs';
+
+async function ensureAdminExists() {
+  try {
+    const admin = await prisma.user.findFirst({
+      where: { phone: '9695718820' },
+    });
+    if (!admin) {
+      const salt = await bcrypt.genSalt(10);
+      const adminPassword = await bcrypt.hash('Aj@y', salt);
+      await prisma.user.create({
+        data: {
+          name: 'अजय मौर्य (Admin)',
+          email: 'ajay@laxminarayan.com',
+          phone: '9695718820',
+          password: adminPassword,
+          role: 'ADMIN',
+          department: 'Management',
+          designation: 'Owner / Director',
+          monthlySalary: 75000,
+          hourlyRate: 400,
+          status: 'ACTIVE',
+          address: 'घमहापुर, चोरारी, जलालपुर रोड, मड़ियाहूँ, जौनपुर',
+          emergencyContact: '+91 7304228743',
+          bankAccount: 'HDFC0001234 - 50100234567890',
+          upiId: 'ajay.maurya@okhdfcbank',
+        },
+      });
+      console.log('⚡ Default Admin user ensured: 9695718820');
+    }
+  } catch (err) {
+    console.error('Error ensuring admin user:', err);
+  }
+}
 
 const server = app.listen(config.port, '0.0.0.0', () => {
   console.log(`\n⚡ Worker Management Backend is running on http://0.0.0.0:${config.port}`);
   console.log(`⚡ Health Check: http://localhost:${config.port}/api/health\n`);
+  ensureAdminExists();
 });
 
 // Handle graceful shutdown

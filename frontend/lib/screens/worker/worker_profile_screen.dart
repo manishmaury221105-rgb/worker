@@ -5,6 +5,7 @@ import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/theme_provider.dart';
+import '../../widgets/company_logo.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/status_badge.dart';
@@ -28,8 +29,6 @@ class _WorkerProfileScreenState extends State<WorkerProfileScreen> {
     final phoneController = TextEditingController(text: user.phone);
     final addressController = TextEditingController(text: user.address ?? '');
     final emergencyController = TextEditingController(text: user.emergencyContact ?? '');
-    final bankController = TextEditingController(text: user.bankAccount ?? '');
-    final upiController = TextEditingController(text: user.upiId ?? '');
 
     showModalBottomSheet(
       context: context,
@@ -92,18 +91,6 @@ class _WorkerProfileScreenState extends State<WorkerProfileScreen> {
                   controller: addressController,
                   prefixIcon: Icons.home_outlined,
                 ),
-                const SizedBox(height: 12),
-                CustomTextField(
-                  label: 'Bank Account Details',
-                  controller: bankController,
-                  prefixIcon: Icons.account_balance_outlined,
-                ),
-                const SizedBox(height: 12),
-                CustomTextField(
-                  label: 'UPI ID',
-                  controller: upiController,
-                  prefixIcon: Icons.payment_outlined,
-                ),
                 const SizedBox(height: 20),
                 CustomButton(
                   text: 'Save Profile Changes',
@@ -113,8 +100,6 @@ class _WorkerProfileScreenState extends State<WorkerProfileScreen> {
                       phone: phoneController.text.trim(),
                       address: addressController.text.trim(),
                       emergencyContact: emergencyController.text.trim(),
-                      bankAccount: bankController.text.trim(),
-                      upiId: upiController.text.trim(),
                     );
                     if (success) {
                       Navigator.of(ctx).pop();
@@ -250,29 +235,6 @@ class _WorkerProfileScreenState extends State<WorkerProfileScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Bank & Payout Information
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.surfaceDark : Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Banking & Payment Method',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                _InfoItem(icon: Icons.account_balance_outlined, label: 'Bank Account', value: user?.bankAccount ?? 'Not provided'),
-                _InfoItem(icon: Icons.payment_outlined, label: 'UPI ID', value: user?.upiId ?? 'Not provided'),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
           // Settings & Preferences
           Container(
             padding: const EdgeInsets.all(18),
@@ -380,15 +342,13 @@ class _WorkerProfileScreenState extends State<WorkerProfileScreen> {
               children: [
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF59E0B).withOpacity(0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.business_rounded, color: Color(0xFFF59E0B), size: 20),
+                    const CompanyLogo(
+                      size: 44,
+                      borderWidth: 1.5,
+                      borderColor: Color(0xFFF59E0B),
+                      hasShadow: true,
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -418,7 +378,7 @@ class _WorkerProfileScreenState extends State<WorkerProfileScreen> {
                 _InfoItem(
                   icon: Icons.phone_android_rounded,
                   label: 'संपर्क / Mobile',
-                  value: 'अजय मौर्य: 9695718820\nविजय मौर्य: 9892826110',
+                  value: 'अजय मौर्य: 9695718820\nविजय मौर्य: 99670 80639\nराज कुमार मौर्य: 98928 26110',
                 ),
                 _InfoItem(
                   icon: Icons.location_on_outlined,

@@ -10,6 +10,7 @@ import {
   getAttendanceSummary,
   getAttendanceLockStatus,
   toggleAttendanceLock,
+  getWorkerMonthlyAttendance,
 } from '../controllers/attendance.controller';
 import { authenticateToken, requireRole } from '../middleware/auth.middleware';
 
@@ -23,6 +24,7 @@ router.post('/self-mark', selfMarkAttendance);
 router.get('/today', getTodayAttendance);
 router.get('/my-history', getMyAttendanceHistory);
 router.get('/lock-status', getAttendanceLockStatus);
+router.get('/worker-monthly', requireRole('ADMIN'), getWorkerMonthlyAttendance);
 router.post('/toggle-lock', requireRole('ADMIN'), toggleAttendanceLock);
 router.get('/summary', requireRole('ADMIN'), getAttendanceSummary);
 router.get('/all', requireRole('ADMIN'), getAllAttendance);

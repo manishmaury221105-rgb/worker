@@ -581,33 +581,44 @@ class _AdminAttendanceScreenState extends State<AdminAttendanceScreen> {
                 const SizedBox(width: 8),
                 OutlinedButton.icon(
                   onPressed: () async {
-                    final msg = await AttendanceExportHelper.exportAdminDailyReport(
-                      date: _selectedDate,
-                      workers: adminProv.workers,
-                      attendances: attProv.allAttendance,
-                    );
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Row(
-                            children: [
-                              const Icon(Icons.download_done_rounded, color: Colors.white, size: 20),
-                              const SizedBox(width: 10),
-                              Expanded(child: Text(msg)),
-                            ],
-                          ),
-                          backgroundColor: AppColors.success,
-                          behavior: SnackBarBehavior.floating,
-                        ),
+                    try {
+                      await AttendanceExportHelper.exportAdminDailyReportPdf(
+                        date: _selectedDate,
+                        workers: adminProv.workers,
+                        attendances: attProv.allAttendance,
                       );
+                    } catch (e) {
+                      debugPrint('PDF export error: $e');
                     }
                   },
-                  icon: const Icon(Icons.file_download_outlined, size: 18),
-                  label: const Text('Download CSV'),
+                  icon: const Icon(Icons.picture_as_pdf_rounded, size: 18, color: Colors.redAccent),
+                  label: const Text('PDF रिपोर्ट', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.redAccent,
+                    side: const BorderSide(color: Colors.redAccent, width: 1.5),
+                    minimumSize: const Size(105, 42),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    try {
+                      await AttendanceExportHelper.shareAdminDailyReportCsv(
+                        date: _selectedDate,
+                        workers: adminProv.workers,
+                        attendances: attProv.allAttendance,
+                      );
+                    } catch (e) {
+                      debugPrint('CSV export error: $e');
+                    }
+                  },
+                  icon: const Icon(Icons.table_chart_outlined, size: 18),
+                  label: const Text('CSV / Excel', style: TextStyle(fontSize: 12)),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.success,
                     side: const BorderSide(color: AppColors.success, width: 1.5),
-                    minimumSize: const Size(125, 42),
+                    minimumSize: const Size(95, 42),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),

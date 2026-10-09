@@ -10,6 +10,7 @@ import '../../widgets/custom_button.dart';
 import '../../widgets/empty_state_view.dart';
 import '../../widgets/error_banner.dart';
 import '../../widgets/status_badge.dart';
+import '../../core/utils/pdf_payslip_generator.dart';
 
 class WorkerSalaryScreen extends StatefulWidget {
   const WorkerSalaryScreen({super.key});
@@ -83,11 +84,63 @@ class _WorkerSalaryScreenState extends State<WorkerSalaryScreen> {
                   value: '${slip.paymentMethod ?? "Bank Transfer"} on ${DateFormat('dd MMM yyyy').format(slip.paymentDate!)}',
                 ),
               ],
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
+              CustomButton(
+                text: '📄 Download / Share PDF (पीडीएफ डाउनलोड/शेयर)',
+                icon: Icons.picture_as_pdf_rounded,
+                variant: ButtonVariant.primary,
+                height: 44,
+                onPressed: () {
+                  final user = Provider.of<AuthProvider>(context, listen: false).currentUser;
+                  PdfPayslipGenerator.sharePayslipPdf(
+                    workerName: slip.workerName ?? user?.name ?? 'Worker',
+                    phone: slip.workerPhone ?? user?.phone ?? '',
+                    designation: slip.designation ?? user?.designation,
+                    department: slip.department ?? user?.department,
+                    monthName: DateFormat('MMMM').format(DateTime(slip.year, slip.month)),
+                    year: slip.year,
+                    dailyWage: slip.baseSalary,
+                    presentDays: slip.presentDays.toDouble(),
+                    totalSalary: slip.netSalary,
+                    bonus: slip.allowance,
+                    deductions: slip.deductions,
+                    remarks: slip.notes,
+                    status: slip.status,
+                    paymentDate: slip.paymentDate,
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+              CustomButton(
+                text: '🖨️ Print / Preview PDF (प्रिंट करें)',
+                icon: Icons.print_rounded,
+                variant: ButtonVariant.outline,
+                height: 44,
+                onPressed: () {
+                  final user = Provider.of<AuthProvider>(context, listen: false).currentUser;
+                  PdfPayslipGenerator.printPayslipPdf(
+                    workerName: slip.workerName ?? user?.name ?? 'Worker',
+                    phone: slip.workerPhone ?? user?.phone ?? '',
+                    designation: slip.designation ?? user?.designation,
+                    department: slip.department ?? user?.department,
+                    monthName: DateFormat('MMMM').format(DateTime(slip.year, slip.month)),
+                    year: slip.year,
+                    dailyWage: slip.baseSalary,
+                    presentDays: slip.presentDays.toDouble(),
+                    totalSalary: slip.netSalary,
+                    bonus: slip.allowance,
+                    deductions: slip.deductions,
+                    remarks: slip.notes,
+                    status: slip.status,
+                    paymentDate: slip.paymentDate,
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
               CustomButton(
                 text: 'Close',
                 variant: ButtonVariant.outline,
-                height: 46,
+                height: 42,
                 onPressed: () => Navigator.of(ctx).pop(),
               ),
             ],

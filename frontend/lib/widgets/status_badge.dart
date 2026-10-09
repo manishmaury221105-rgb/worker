@@ -17,14 +17,22 @@ class StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     Color bg;
     Color fg;
+    final upper = status.trim().toUpperCase();
     String label = status.replaceAll('_', ' ');
 
-    switch (status.toUpperCase()) {
+    if (upper == 'COMPLETED' || upper == 'DONE') {
+      label = 'DONE';
+    } else if (upper == 'PAID') {
+      label = 'PAID (DONE)';
+    }
+
+    switch (upper) {
+      case 'DONE':
+      case 'COMPLETED':
+      case 'PAID':
       case 'PRESENT':
       case 'ACTIVE':
       case 'APPROVED':
-      case 'PAID':
-      case 'COMPLETED':
       case 'REIMBURSED':
         bg = AppColors.success.withOpacity(0.14);
         fg = AppColors.success;

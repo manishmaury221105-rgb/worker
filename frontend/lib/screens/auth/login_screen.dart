@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/locale_provider.dart';
+import '../../widgets/company_logo.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/error_banner.dart';
@@ -88,30 +89,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Brand Icon with Gold Border & Navy Gradient
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color(0xFF0C2461),
-                          border: Border.all(
-                            color: AppColors.accentLight,
-                            width: 3,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.accent.withOpacity(0.35),
-                              blurRadius: 18,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.door_sliding_rounded,
-                          size: 38,
-                          color: AppColors.accentLight,
-                        ),
+                    // Official Brand Logo with Gold Border & Navy Shadow
+                    const Center(
+                      child: CompanyLogo(
+                        size: 88,
+                        borderWidth: 2.5,
+                        borderColor: Color(0xFFFBBF24),
+                        hasShadow: true,
                       ),
                     ),
                     const SizedBox(height: 14),
@@ -261,21 +245,20 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               const Icon(Icons.phone_in_talk_rounded, size: 14, color: Color(0xFFF59E0B)),
                               const SizedBox(width: 6),
                               Expanded(
                                 child: Text(
-                                  'अजय मौर्य: 9695718820 | विजय मौर्य: 9892826110',
+                                  'अजय मौर्य: 9695718820 | विजय मौर्य: 99670 80639\nराज कुमार मौर्य: 98928 26110',
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 10.5,
                                     fontWeight: FontWeight.w600,
+                                    height: 1.35,
                                     color: isDark ? Colors.white70 : const Color(0xFF0F172A),
                                   ),
                                   textAlign: TextAlign.center,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],

@@ -6,6 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/salary_provider.dart';
+import '../../widgets/company_logo.dart';
 import '../../widgets/language_theme_toggle.dart';
 import '../auth/login_screen.dart';
 import '../common/notifications_screen.dart';
@@ -174,13 +175,11 @@ class _AdminMainNavigationState extends State<AdminMainNavigation> {
       appBar: AppBar(
         title: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: AppColors.purple.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.admin_panel_settings_rounded, color: AppColors.purple, size: 22),
+            const CompanyLogo(
+              size: 34,
+              borderWidth: 1.5,
+              borderColor: Color(0xFFFBBF24),
+              hasShadow: false,
             ),
             const SizedBox(width: 10),
             Column(
@@ -191,7 +190,7 @@ class _AdminMainNavigationState extends State<AdminMainNavigation> {
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  'Admin: ${authProv.currentUser?.name ?? "Rajesh Sharma"}',
+                  'Admin: ${authProv.currentUser?.name ?? "Ajay Maurya"}',
                   style: TextStyle(
                     fontSize: 11,
                     color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
@@ -229,7 +228,7 @@ class _AdminMainNavigationState extends State<AdminMainNavigation> {
             UserAccountsDrawerHeader(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.purple],
+                  colors: [Color(0xFF0C2461), AppColors.primary],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -239,12 +238,11 @@ class _AdminMainNavigationState extends State<AdminMainNavigation> {
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               accountEmail: Text(authProv.currentUser?.email ?? 'admin@workerapp.com'),
-              currentAccountPicture: const CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Text(
-                  '👑',
-                  style: TextStyle(fontSize: 26),
-                ),
+              currentAccountPicture: const CompanyLogo(
+                size: 64,
+                borderWidth: 2,
+                borderColor: Color(0xFFFBBF24),
+                hasShadow: true,
               ),
             ),
             _DrawerItem(

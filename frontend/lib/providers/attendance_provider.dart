@@ -256,6 +256,27 @@ class AttendanceProvider extends ChangeNotifier {
     }
   }
 
+  Future<Map<String, dynamic>?> fetchWorkerMonthlyAttendance({
+    required String userId,
+    required int month,
+    required int year,
+  }) async {
+    try {
+      final res = await ApiService.get(
+        ApiEndpoints.workerMonthlyAttendance,
+        queryParams: {
+          'userId': userId,
+          'month': month,
+          'year': year,
+        },
+      );
+      if (res.success && res.data != null) {
+        return res.data as Map<String, dynamic>;
+      }
+    } catch (_) {}
+    return null;
+  }
+
   Future<void> fetchAllAttendance({String? date, String? status, String? department}) async {
     _isLoading = true;
     _errorMessage = null;

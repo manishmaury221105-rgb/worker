@@ -4,10 +4,12 @@ import '../../core/constants/app_colors.dart';
 import '../../models/user_model.dart';
 import '../../providers/admin_provider.dart';
 import '../../providers/locale_provider.dart';
+import '../../widgets/app_image.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/empty_state_view.dart';
 import '../../widgets/error_banner.dart';
+import '../../widgets/photo_picker_dialog.dart';
 import '../../widgets/status_badge.dart';
 
 class AdminWorkersScreen extends StatefulWidget {
@@ -35,124 +37,21 @@ class _AdminWorkersScreenState extends State<AdminWorkersScreen> {
     String? currentUrl,
     required Function(String url) onSaved,
   }) {
-    final urlController = TextEditingController(text: currentUrl ?? '');
-
-    showDialog(
+    PhotoPickerDialog.show(
       context: context,
-      builder: (dialogCtx) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          final isDark = Theme.of(context).brightness == Brightness.dark;
-          final previewUrl = urlController.text.trim();
-
-          return AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
-            title: Row(
-              children: [
-                const Icon(Icons.add_a_photo_rounded, color: AppColors.primary, size: 22),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Enter image URL or choose a preset demo photo for testing:',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 12),
-                  CustomTextField(
-                    label: 'Photo Image URL',
-                    hint: 'https://... or file path',
-                    controller: urlController,
-                    prefixIcon: Icons.link_rounded,
-                    onChanged: (_) => setDialogState(() {}),
-                  ),
-                  const SizedBox(height: 10),
-                  // Quick Preset Options
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 6,
-                    children: [
-                      ActionChip(
-                        avatar: const Icon(Icons.image_outlined, size: 14),
-                        label: const Text('Sample Aadhaar 1', style: TextStyle(fontSize: 11)),
-                        onPressed: () {
-                          urlController.text = 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=500&auto=format&fit=crop&q=80';
-                          setDialogState(() {});
-                        },
-                      ),
-                      ActionChip(
-                        avatar: const Icon(Icons.image_outlined, size: 14),
-                        label: const Text('Sample Aadhaar 2', style: TextStyle(fontSize: 11)),
-                        onPressed: () {
-                          urlController.text = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=500&auto=format&fit=crop&q=80';
-                          setDialogState(() {});
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-
-                  // Image Preview Box
-                  if (previewUrl.isNotEmpty) ...[
-                    const Text('Preview:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 6),
-                    Container(
-                      height: 140,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.primary.withOpacity(0.4)),
-                        color: Colors.black12,
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: Image.network(
-                        previewUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const Center(
-                          child: Text(
-                            '⚠️ Cannot load preview image URL',
-                            style: TextStyle(fontSize: 11, color: Colors.red),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogCtx).pop(),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                onPressed: () {
-                  final text = urlController.text.trim();
-                  if (text.isNotEmpty) {
-                    onSaved(text);
-                  }
-                  Navigator.of(dialogCtx).pop();
-                },
-                child: const Text('Attach Photo'),
-              ),
-            ],
-          );
+      title: title,
+      currentUrl: currentUrl,
+      onSaved: onSaved,
+      samplePresets: const [
+        {
+          'label': 'Sample Aadhaar 1',
+          'url': 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=500&auto=format&fit=crop&q=80',
         },
-      ),
+        {
+          'label': 'Sample Aadhaar 2',
+          'url': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=500&auto=format&fit=crop&q=80',
+        },
+      ],
     );
   }
 
@@ -789,12 +688,9 @@ class _AadhaarUploadBox extends StatelessWidget {
             ? Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    imageUrl!,
+                  AppImage(
+                    imageSource: imageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const Center(
-                      child: Icon(Icons.broken_image_rounded, color: Colors.grey),
-                    ),
                   ),
                   Positioned(
                     top: 4,
@@ -876,12 +772,9 @@ class _AadhaarViewThumb extends StatelessWidget {
           ? Stack(
               fit: StackFit.expand,
               children: [
-                Image.network(
-                  imageUrl!,
+                AppImage(
+                  imageSource: imageUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const Center(
-                    child: Icon(Icons.broken_image_rounded, color: Colors.grey),
-                  ),
                 ),
                 Positioned(
                   bottom: 4,

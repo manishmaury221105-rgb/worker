@@ -164,8 +164,9 @@ class _ServerSettingsDialogState extends State<ServerSettingsDialog> {
               spacing: 8,
               runSpacing: 6,
               children: [
-                _buildPresetChip('💻 Emulator (10.0.2.2)', 'http://10.0.2.2:5050/api'),
+                _buildPresetChip('🌐 Cloud Tunnel (Recommended)', 'https://map-furniture-ideal-fall.trycloudflare.com/api'),
                 _buildPresetChip('📱 Wi-Fi (192.168.0.206)', 'http://192.168.0.206:5050/api'),
+                _buildPresetChip('💻 Emulator (10.0.2.2)', 'http://10.0.2.2:5050/api'),
                 _buildPresetChip('🔌 Localhost (127.0.0.1)', 'http://localhost:5050/api'),
               ],
             ),

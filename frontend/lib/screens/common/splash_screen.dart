@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/company_logo.dart';
 import '../auth/login_screen.dart';
 import '../worker/worker_main_navigation.dart';
 import '../admin/admin_main_navigation.dart';
@@ -70,28 +71,11 @@ class _SplashScreenState extends State<SplashScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Gold-bordered emblem container
-                  Container(
-                    padding: const EdgeInsets.all(22),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: const Color(0xFF0C2461),
-                      border: Border.all(
-                        color: AppColors.accentLight,
-                        width: 3.5,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.accent.withOpacity(0.4),
-                          blurRadius: 28,
-                          spreadRadius: 4,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.door_sliding_rounded,
-                      size: 60,
-                      color: AppColors.accentLight,
-                    ),
+                  const CompanyLogo(
+                    size: 130,
+                    borderWidth: 3.5,
+                    borderColor: Color(0xFFFBBF24),
+                    hasShadow: true,
                   ),
                   const SizedBox(height: 26),
 

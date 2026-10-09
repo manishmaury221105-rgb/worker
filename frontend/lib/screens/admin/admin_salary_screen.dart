@@ -4,11 +4,13 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../models/salary_model.dart';
 import '../../providers/admin_provider.dart';
+import '../../providers/attendance_provider.dart';
 import '../../providers/salary_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/empty_state_view.dart';
 import '../../widgets/status_badge.dart';
+import '../../core/utils/pdf_payslip_generator.dart';
 import '../../core/utils/whatsapp_helper.dart';
 
 class AdminSalaryScreen extends StatefulWidget {
@@ -32,11 +34,14 @@ class _AdminSalaryScreenState extends State<AdminSalaryScreen> {
   void _showGeneratePayslipSheet() {
     final formKey = GlobalKey<FormState>();
     final adminProv = Provider.of<AdminProvider>(context, listen: false);
+    final attProv = Provider.of<AttendanceProvider>(context, listen: false);
     String? selectedWorkerId = adminProv.workers.isNotEmpty ? adminProv.workers.first.id : null;
     int month = DateTime.now().month;
     int year = DateTime.now().year;
-    final daysController = TextEditingController(text: '30');
+    final daysController = TextEditingController(text: '0');
     final notesController = TextEditingController();
+    bool isFetchingAttendance = false;
+    String attendanceInfo = '';
 
     showModalBottomSheet(
       context: context,
@@ -46,6 +51,31 @@ class _AdminSalaryScreenState extends State<AdminSalaryScreen> {
         builder: (context, setModalState) {
           final isDark = Theme.of(context).brightness == Brightness.dark;
           final salProv = Provider.of<SalaryProvider>(context);
+
+          // Function to load actual attendance from database
+          void loadActualAttendance(String? wId, int m, int y) async {
+            if (wId == null) return;
+            setModalState(() => isFetchingAttendance = true);
+            final data = await attProv.fetchWorkerMonthlyAttendance(userId: wId, month: m, year: y);
+            if (data != null) {
+              final num effDays = data['effectivePresentDays'] ?? 0;
+              final num pDays = data['presentDays'] ?? 0;
+              final num hDays = data['halfDays'] ?? 0;
+              daysController.text = (effDays % 1 == 0) ? effDays.toInt().toString() : effDays.toString();
+              attendanceInfo = '$pDays Full Day + $hDays Half Day';
+            } else {
+              daysController.text = '0';
+              attendanceInfo = '0 Days Record';
+            }
+            setModalState(() => isFetchingAttendance = false);
+          }
+
+          // Initial load if not done
+          if (daysController.text == '0' && attendanceInfo.isEmpty && selectedWorkerId != null && !isFetchingAttendance) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              loadActualAttendance(selectedWorkerId, month, year);
+            });
+          }
 
           final currentWorker = adminProv.workers.firstWhere(
             (w) => w.id == selectedWorkerId,
@@ -97,7 +127,10 @@ class _AdminSalaryScreenState extends State<AdminSalaryScreen> {
                           child: Text('${w.name} (₹${w.monthlySalary.toStringAsFixed(0)}/day)'),
                         );
                       }).toList(),
-                      onChanged: (v) => setModalState(() => selectedWorkerId = v),
+                      onChanged: (v) {
+                        setModalState(() => selectedWorkerId = v);
+                        loadActualAttendance(v, month, year);
+                      },
                       validator: (v) => v == null ? 'Select a worker' : null,
                     ),
                     const SizedBox(height: 12),
@@ -115,7 +148,10 @@ class _AdminSalaryScreenState extends State<AdminSalaryScreen> {
                               );
                             }).toList(),
                             onChanged: (v) {
-                              if (v != null) setModalState(() => month = v);
+                              if (v != null) {
+                                setModalState(() => month = v);
+                                loadActualAttendance(selectedWorkerId, v, year);
+                              }
                             },
                           ),
                         ),
@@ -128,7 +164,10 @@ class _AdminSalaryScreenState extends State<AdminSalaryScreen> {
                               return DropdownMenuItem(value: y, child: Text('$y'));
                             }).toList(),
                             onChanged: (v) {
-                              if (v != null) setModalState(() => year = v);
+                              if (v != null) {
+                                setModalState(() => year = v);
+                                loadActualAttendance(selectedWorkerId, month, v);
+                              }
                             },
                           ),
                         ),
@@ -136,20 +175,45 @@ class _AdminSalaryScreenState extends State<AdminSalaryScreen> {
                     ),
                     const SizedBox(height: 12),
 
-                    // Present Days Input
-                    CustomTextField(
-                      label: 'Present Days (उपस्थित दिन)',
-                      hint: 'e.g. 26 or 30',
-                      controller: daysController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      prefixIcon: Icons.calendar_today_rounded,
-                      onChanged: (_) => setModalState(() {}),
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Enter present days';
-                        if (double.tryParse(v) == null) return 'Enter a valid number';
-                        return null;
-                      },
+                    // Present Days Input with Auto-sync indicator
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: CustomTextField(
+                            label: 'Present Days (उपस्थित दिन)',
+                            hint: 'e.g. 1, 15 or 26',
+                            controller: daysController,
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            prefixIcon: Icons.calendar_today_rounded,
+                            onChanged: (_) => setModalState(() {}),
+                            validator: (v) {
+                              if (v == null || v.trim().isEmpty) return 'Enter present days';
+                              if (double.tryParse(v) == null) return 'Enter a valid number';
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: IconButton(
+                            tooltip: 'Sync with Attendance (हाजिरी से सिंक करें)',
+                            icon: isFetchingAttendance
+                                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                                : const Icon(Icons.sync_rounded, color: AppColors.primary),
+                            onPressed: isFetchingAttendance ? null : () => loadActualAttendance(selectedWorkerId, month, year),
+                          ),
+                        ),
+                      ],
                     ),
+                    if (attendanceInfo.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        '✓ उपस्थिति रिकॉर्ड: $attendanceInfo (वास्तविक हाजिरी)',
+                        style: const TextStyle(fontSize: 11, color: AppColors.success, fontWeight: FontWeight.w600),
+                      ),
+                    ],
                     const SizedBox(height: 14),
 
                     // Live Multiplied Calculation Preview Box
@@ -229,7 +293,9 @@ class _AdminSalaryScreenState extends State<AdminSalaryScreen> {
                     const SizedBox(height: 20),
 
                     CustomButton(
-                      text: 'Calculate & Generate (₹${totalSalary.toStringAsFixed(0)})',
+                      text: 'Calculate & Send on WhatsApp (₹${totalSalary.toStringAsFixed(0)})',
+                      icon: Icons.send_rounded,
+                      variant: ButtonVariant.success,
                       isLoading: salProv.isLoading,
                       onPressed: () async {
                         if (!formKey.currentState!.validate() || selectedWorkerId == null) return;
@@ -244,7 +310,7 @@ class _AdminSalaryScreenState extends State<AdminSalaryScreen> {
                         );
                         if (success) {
                           Navigator.of(ctx).pop();
-                          // Send / Open payslip on worker's WhatsApp
+                          // Directly open WhatsApp chat with worker
                           await WhatsAppHelper.sendSalaryPayslip(
                             phone: currentWorker.phone,
                             workerName: currentWorker.name,
@@ -262,6 +328,45 @@ class _AdminSalaryScreenState extends State<AdminSalaryScreen> {
                                 backgroundColor: Colors.green,
                               ),
                             );
+                          }
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    CustomButton(
+                      text: '📄 Share / Print PDF Document',
+                      icon: Icons.picture_as_pdf_rounded,
+                      variant: ButtonVariant.outline,
+                      height: 42,
+                      onPressed: () async {
+                        if (!formKey.currentState!.validate() || selectedWorkerId == null) return;
+                        final success = await salProv.generatePayslip(
+                          userId: selectedWorkerId!,
+                          month: month,
+                          year: year,
+                          presentDays: days,
+                          bonus: 0,
+                          deductions: 0,
+                          notes: notesController.text.trim(),
+                        );
+                        if (success) {
+                          Navigator.of(ctx).pop();
+                          try {
+                            await PdfPayslipGenerator.sharePayslipPdf(
+                              workerName: currentWorker.name,
+                              phone: currentWorker.phone,
+                              designation: currentWorker.designation,
+                              department: currentWorker.department,
+                              monthName: DateFormat('MMMM').format(DateTime(year, month)),
+                              year: year,
+                              dailyWage: dailyWage,
+                              presentDays: days,
+                              totalSalary: totalSalary,
+                              remarks: notesController.text.trim(),
+                              status: 'PAID (DONE)',
+                            );
+                          } catch (e) {
+                            debugPrint('PDF error: $e');
                           }
                         }
                       },
@@ -391,6 +496,60 @@ class _AdminSalaryScreenState extends State<AdminSalaryScreen> {
                                   ),
                                 ),
                                 IconButton(
+                                  icon: const Icon(Icons.picture_as_pdf_rounded, color: Colors.redAccent, size: 20),
+                                  tooltip: 'Share PDF Payslip (पीडीएफ शेयर करें)',
+                                  visualDensity: VisualDensity.compact,
+                                  onPressed: () {
+                                    final worker = adminProv.workers.firstWhere(
+                                      (w) => w.id == slip.userId,
+                                      orElse: () => adminProv.workers.first,
+                                    );
+                                    PdfPayslipGenerator.sharePayslipPdf(
+                                      workerName: slip.workerName ?? worker.name,
+                                      phone: slip.workerPhone ?? worker.phone,
+                                      designation: slip.designation ?? worker.designation,
+                                      department: slip.department ?? worker.department,
+                                      monthName: DateFormat('MMMM').format(DateTime(slip.year, slip.month)),
+                                      year: slip.year,
+                                      dailyWage: slip.baseSalary,
+                                      presentDays: slip.presentDays.toDouble(),
+                                      totalSalary: slip.netSalary,
+                                      bonus: slip.allowance,
+                                      deductions: slip.deductions,
+                                      remarks: slip.notes,
+                                      status: slip.status,
+                                      paymentDate: slip.paymentDate,
+                                    );
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.print_rounded, color: AppColors.primary, size: 20),
+                                  tooltip: 'Print / Download PDF (प्रिंट करें)',
+                                  visualDensity: VisualDensity.compact,
+                                  onPressed: () {
+                                    final worker = adminProv.workers.firstWhere(
+                                      (w) => w.id == slip.userId,
+                                      orElse: () => adminProv.workers.first,
+                                    );
+                                    PdfPayslipGenerator.printPayslipPdf(
+                                      workerName: slip.workerName ?? worker.name,
+                                      phone: slip.workerPhone ?? worker.phone,
+                                      designation: slip.designation ?? worker.designation,
+                                      department: slip.department ?? worker.department,
+                                      monthName: DateFormat('MMMM').format(DateTime(slip.year, slip.month)),
+                                      year: slip.year,
+                                      dailyWage: slip.baseSalary,
+                                      presentDays: slip.presentDays.toDouble(),
+                                      totalSalary: slip.netSalary,
+                                      bonus: slip.allowance,
+                                      deductions: slip.deductions,
+                                      remarks: slip.notes,
+                                      status: slip.status,
+                                      paymentDate: slip.paymentDate,
+                                    );
+                                  },
+                                ),
+                                IconButton(
                                   icon: const Icon(Icons.share_rounded, color: AppColors.success, size: 20),
                                   tooltip: 'Send Payslip to Worker WhatsApp',
                                   visualDensity: VisualDensity.compact,
@@ -447,7 +606,7 @@ class _AdminSalaryScreenState extends State<AdminSalaryScreen> {
                             if (!slip.isPaid) ...[
                               const SizedBox(height: 14),
                               CustomButton(
-                                text: 'Mark as Paid & Disburse',
+                                text: 'Mark as DONE / Paid (भुगतान पूरा करें)',
                                 variant: ButtonVariant.success,
                                 height: 40,
                                 fontSize: 13,
@@ -461,7 +620,7 @@ class _AdminSalaryScreenState extends State<AdminSalaryScreen> {
                                   if (success && context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Salary for ${slip.workerName ?? "Worker"} marked as PAID!'),
+                                        content: Text('Salary for ${slip.workerName ?? "Worker"} marked as DONE (PAID)!'),
                                         backgroundColor: Colors.green,
                                       ),
                                     );

@@ -4,6 +4,7 @@ import '../../core/constants/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/notification_provider.dart';
+import '../../widgets/company_logo.dart';
 import '../../widgets/language_theme_toggle.dart';
 import '../common/notifications_screen.dart';
 import 'worker_attendance_screen.dart';
@@ -45,13 +46,11 @@ class _WorkerMainNavigationState extends State<WorkerMainNavigation> {
       appBar: AppBar(
         title: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.engineering_rounded, color: AppColors.primary, size: 22),
+            const CompanyLogo(
+              size: 34,
+              borderWidth: 1.5,
+              borderColor: Color(0xFFFBBF24),
+              hasShadow: false,
             ),
             const SizedBox(width: 10),
             Column(

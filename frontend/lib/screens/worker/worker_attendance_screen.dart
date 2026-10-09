@@ -460,40 +460,57 @@ class _WorkerAttendanceScreenState extends State<WorkerAttendanceScreen> {
                   ),
                 ),
                 if (attProv.history.isNotEmpty)
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.download_rounded, size: 16),
-                    label: const Text('Download (CSV)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      minimumSize: const Size(120, 38),
-                      elevation: 1,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    onPressed: () async {
-                      final authProv = Provider.of<AuthProvider>(context, listen: false);
-                      final msg = await AttendanceExportHelper.exportWorkerHistory(
-                        workerName: authProv.currentUser?.name ?? 'Worker',
-                        phone: authProv.currentUser?.phone ?? '',
-                        history: attProv.history,
-                      );
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Row(
-                              children: [
-                                const Icon(Icons.download_done_rounded, color: Colors.white, size: 20),
-                                const SizedBox(width: 8),
-                                Expanded(child: Text(msg)),
-                              ],
-                            ),
-                            backgroundColor: AppColors.success,
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      }
-                    },
+                  Row(
+                    children: [
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.picture_as_pdf_rounded, size: 15, color: Colors.white),
+                        label: const Text('PDF रिपोर्ट', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          minimumSize: const Size(85, 36),
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        onPressed: () async {
+                          final authProv = Provider.of<AuthProvider>(context, listen: false);
+                          try {
+                            await AttendanceExportHelper.exportWorkerHistoryPdf(
+                              workerName: authProv.currentUser?.name ?? 'Worker',
+                              phone: authProv.currentUser?.phone ?? '',
+                              history: attProv.history,
+                            );
+                          } catch (e) {
+                            debugPrint('PDF export error: $e');
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 6),
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.table_chart_outlined, size: 14),
+                        label: const Text('CSV', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          minimumSize: const Size(70, 36),
+                          side: const BorderSide(color: AppColors.primary, width: 1.2),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        onPressed: () async {
+                          final authProv = Provider.of<AuthProvider>(context, listen: false);
+                          try {
+                            await AttendanceExportHelper.shareWorkerHistoryCsv(
+                              workerName: authProv.currentUser?.name ?? 'Worker',
+                              phone: authProv.currentUser?.phone ?? '',
+                              history: attProv.history,
+                            );
+                          } catch (e) {
+                            debugPrint('CSV export error: $e');
+                          }
+                        },
+                      ),
+                    ],
                   )
                 else
                   Text(

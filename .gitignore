@@ -43,3 +43,8 @@ build/
 *.iml
 *.ipr
 *.iws
+
+# Database & Logs
+.pgdata/
+*.log
+
