@@ -1,12 +1,30 @@
 import 'package:flutter/foundation.dart';
 
 class ApiEndpoints {
-  // Base URL - Automatically detects web/macOS vs Android emulator
-  static String get baseUrl {
+  static String? _customBaseUrl;
+
+  static void setCustomBaseUrl(String? url) {
+    if (url != null && url.trim().isNotEmpty) {
+      String clean = url.trim();
+      if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
+        clean = 'http://$clean';
+      }
+      while (clean.endsWith('/')) {
+        clean = clean.substring(0, clean.length - 1);
+      }
+      if (!clean.endsWith('/api')) {
+        clean = '$clean/api';
+      }
+      _customBaseUrl = clean;
+    } else {
+      _customBaseUrl = null;
+    }
+  }
+
+  static String get defaultBaseUrl {
     if (kIsWeb) {
       return 'http://localhost:5050/api';
     }
-    // For mobile platforms
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return 'http://10.0.2.2:5050/api';
@@ -14,6 +32,9 @@ class ApiEndpoints {
         return 'http://localhost:5050/api';
     }
   }
+
+  // Base URL - Custom if configured, otherwise platform default
+  static String get baseUrl => _customBaseUrl ?? defaultBaseUrl;
 
   // Auth
   static const String login = '/auth/login';

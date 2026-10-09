@@ -7,6 +7,7 @@ import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/error_banner.dart';
 import '../../widgets/language_theme_toggle.dart';
+import '../../widgets/server_settings_dialog.dart';
 import '../admin/admin_main_navigation.dart';
 import '../worker/worker_main_navigation.dart';
 
@@ -64,8 +65,13 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: const [
-          Padding(
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.dns_rounded, size: 20),
+            tooltip: 'Server Settings (सर्वर सेटिंग्स)',
+            onPressed: () => ServerSettingsDialog.show(context),
+          ),
+          const Padding(
             padding: EdgeInsets.only(right: 16),
             child: LanguageThemeToggle(),
           ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'core/constants/api_endpoints.dart';
+import 'core/services/storage_service.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/admin_provider.dart';
 import 'providers/attendance_provider.dart';
@@ -16,6 +18,13 @@ import 'screens/common/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Load any saved custom base URL
+  final savedUrl = await StorageService.getBaseUrl();
+  if (savedUrl != null && savedUrl.isNotEmpty) {
+    ApiEndpoints.setCustomBaseUrl(savedUrl);
+  }
+  
   runApp(const WorkerManagementApp());
 }
 

@@ -60,8 +60,8 @@ app.use(notFoundHandler);
 // Global Error Handler
 app.use(errorHandler);
 
-const server = app.listen(config.port, () => {
-  console.log(`\n⚡ Worker Management Backend is running on http://localhost:${config.port}`);
+const server = app.listen(config.port, '0.0.0.0', () => {
+  console.log(`\n⚡ Worker Management Backend is running on http://0.0.0.0:${config.port}`);
   console.log(`⚡ Health Check: http://localhost:${config.port}/api/health\n`);
 });
 

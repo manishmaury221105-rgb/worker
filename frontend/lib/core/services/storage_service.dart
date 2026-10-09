@@ -6,6 +6,17 @@ class StorageService {
   static const String _userKey = 'user_profile';
   static const String _localeKey = 'app_locale';
   static const String _themeKey = 'app_theme_mode';
+  static const String _baseUrlKey = 'custom_base_url';
+
+  static Future<void> saveBaseUrl(String url) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_baseUrlKey, url);
+  }
+
+  static Future<String?> getBaseUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_baseUrlKey);
+  }
 
   static Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
